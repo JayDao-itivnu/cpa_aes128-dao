@@ -16,9 +16,10 @@ entity top is
     port (  
         clock           : in std_logic;
         reset           : in std_logic;
-		tx_tick         : out std_logic;          -- I/O for functional simulation, not for implementation
-        rx_tick         : out std_logic;          -- I/O for functional simulation, not for implementation
-        rx_bit_tick     : out std_logic;          -- I/O for functional simulation, not for implementation
+--		tx_tick         : out std_logic;          -- I/O for functional simulation, not for implementation
+--        rx_tick         : out std_logic;          -- I/O for functional simulation, not for implementation
+--        rx_bit_tick     : out std_logic;          -- I/O for functional simulation, not for implementation
+        trigSig         : out std_logic;          -- I/O for Trigger Signal
         rx              : in std_logic;
         tx              : out std_logic
     );
@@ -85,7 +86,7 @@ architecture rtl of top is
 	 signal cnt			: std_logic_vector (3 downto 0);
 	 signal reg         : std_logic_vector(255 downto 0):= (others => '0');
 	 signal write_cnt   : std_logic_vector (4 downto 0):= (others => '0');
-	 signal trigSig     : std_logic;
+--	 signal tx_tick, rx_tick, rx_bit_tick: std_logic;
 	 
 	 signal i  :integer range 0 to 16;
 begin
@@ -106,9 +107,9 @@ begin
         data_stream_in_ack  => uart_data_in_ack,
         data_stream_out     => uart_data_out,
         data_stream_out_stb => uart_data_out_stb,
-        tx_tick             => tx_tick,
-        rx_tick             => rx_tick,
-        rx_bit_tick         => rx_bit_tick,
+        tx_tick             => open,
+        rx_tick             => open,
+        rx_bit_tick         => open,
         tx                  => tx,
         rx                  => rx
     );

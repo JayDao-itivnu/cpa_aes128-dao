@@ -1,6 +1,9 @@
 -------------------------------------------------------------------------------
 -- Top Module
 -- AES + UART Component
+-- Version 2: Store Key inside the architecture
+--      +) The size of the reg signal is 128-bit instead of 256-bit
+--      +) Write_cnt count from 0-15 instead of 0-31 
 -------------------------------------------------------------------------------
 library ieee;
     use ieee.std_logic_1164.all;
@@ -84,8 +87,8 @@ architecture rtl of top is
 	 signal aes_ready   : std_logic;         -- Indicates that Cipher is already
      signal aes_load 	: std_logic;         -- Signal indicates that the AES could load the data from the input register
 	 signal cnt			: std_logic_vector (3 downto 0);
-	 signal reg         : std_logic_vector(255 downto 0):= (others => '0');
-	 signal write_cnt   : std_logic_vector (4 downto 0):= (others => '0');
+	 signal reg         : std_logic_vector(127 downto 0):= (others => '0');
+	 signal write_cnt   : std_logic_vector (3 downto 0):= (others => '0');
 --	 signal tx_tick, rx_tick, rx_bit_tick: std_logic;
 	 
 	 signal i  :integer range 0 to 16;
@@ -119,8 +122,8 @@ begin
     aes_comp: aes128key
     port map(reset, clock, aes_empty, aes_load, key_tmp, pt_tmp, trigSig, aes_ready, cp_reg);
      
-    key_tmp <=  reg(255 downto 128) when aes_load ='1' else key_tmp;
-    pt_tmp  <=  reg(127 downto 0)  when aes_load ='1' else pt_tmp;
+    key_tmp <=  X"00112233445566778899AABBCCDDEEFF";
+    pt_tmp  <=  reg(127 downto 0);
 
     uart_data_in_tmp <= cp_tmp(127 downto 120);
     uart_data_in <= uart_data_in_tmp;
@@ -129,14 +132,14 @@ begin
         begin
             if rising_edge(clock) then
                 if (uart_data_out_stb ='1') then
-                    if (write_cnt < "11111") then
+                    if (write_cnt < "1111") then
                         aes_load <= '0';
                         write_cnt <= write_cnt + 1;
                     else
                         write_cnt <= (others => '0');
                         aes_load <= '1';
                     end if;
-                    reg  <= reg(247 downto 0) & uart_data_out;
+                    reg  <= reg(119 downto 0) & uart_data_out;
                 end if;
                 if aes_load = '1' then
                     aes_load <= '0';

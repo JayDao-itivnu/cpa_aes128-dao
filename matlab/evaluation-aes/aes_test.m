@@ -22,18 +22,19 @@ myComPort = serial('COM7','BaudRate',9600,'Timeout',200); %4800 %921600 460800 1
 fopen(myComPort);
 fprintf('Loading Success!\n\nBegin test!\n----------------\n');
 Test =0;
+Key = '00112233445566778899AABBCCDDEEFF';
 for n =1: 1000
-    Key = dec2hex(randi([0 15],1,32)).';
+%     Key = dec2hex(randi([0 15],1,32)).';
     Plaintext = dec2hex(randi([0 15],1,32)).';
     expCipher = Cipher(Key,Plaintext);
     fprintf('I=%d\n',n)
         
-    % Send Key
-    for k = 1:length(Key)/2
-        sendbyte = Key((2*k-1):(2*k));
-        x=uint8(hex2dec(sendbyte));
-        fwrite(myComPort,x,'uint8');
-    end
+%     % Send Key
+%     for k = 1:length(Key)/2
+%         sendbyte = Key((2*k-1):(2*k));
+%         x=uint8(hex2dec(sendbyte));
+%         fwrite(myComPort,x,'uint8');
+%     end
     
     % Send PT
     for k = 1:length(Plaintext)/2

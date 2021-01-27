@@ -1,5 +1,4 @@
 dbstop if error
-ca
 clear all
 cleanupObj = onCleanup(@cleanMeUp);
 

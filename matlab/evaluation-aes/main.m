@@ -15,24 +15,18 @@ if ~isempty(instrfind)
 end
 % Prepare Lecroy
 init_LeCroy;
-% Init COM port to FPGA
-% myComPort = serial('COM7','BaudRate',115200,'Timeout',60); %4800 %921600 460800 115200
-% fopen(myComPort);
-
+no_Test = 1000
 % Generate 128-bit (16 bytes) Plaintext
-
-
 myComPort = serial('COM7','BaudRate',9600,'Timeout',200); %4800 %921600 460800 115200
 fopen(myComPort);
 fprintf('Loading Success!\n\nBegin test!\n----------------\n');
 Test =0;
 Key = '00112233445566778899AABBCCDDEEFF';
-for n =1: 1000
-%     Key = dec2hex(randi([0 15],1,32)).';
+for n =1: no_Test
     Plaintext = dec2hex(randi([0 15],1,32)).';
     expCipher = Cipher(Key,Plaintext);
     fprintf('I=%d\n',n)
-          
+    Inputs(n) = hex2dec(Plaintext(1:2));      
     % Send PT
     for k = 1:length(Plaintext)/2
         sendbyte = Plaintext((2*k-1):(2*k));
@@ -40,7 +34,6 @@ for n =1: 1000
         fwrite(myComPort,x,'uint8');
     end
         acquire_LeCroy_scope_data
-    
         traces_Y(n,:)= Y;  % Add another traces(n,:)=Y
         traces_T(n,:)= T;
     cipher_2x16 = dec2hex(fread(myComPort,16,'uint8')).';
@@ -50,15 +43,11 @@ for n =1: 1000
         Test= Test + 1;
     end
 end
-WrongTest =1000-Test;
+WrongTest =no_Test-Test;
 fprintf('Closing the Port ...\n...\n');
 fclose(myComPort);
 disp('Completed!!')
 disp('------------')
 fprintf('Summarization:\nTotal test: 1000\nTotal correct cases: %d\nTotal wrong cases: %d\n', Test,WrongTest)
 
-% Check to see if cipher is correct 
-
-% Read the power waveplot
-acquire_LeCroy_scope_data
-
+save('Input.mat', 'Inputs', 'traces_Y') 
